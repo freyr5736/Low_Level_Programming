@@ -2,10 +2,68 @@
 #include <cstring>  // optional, for memcpy
 #include <iostream> // optional, for debugging
 
+template <typename T> struct myiterator {
+    T *ptr;
+
+    // Constructor
+    myiterator(T *p = nullptr) : ptr(p) {}
+
+    // Pre-increment (++it)
+    myiterator &operator++() {
+        ++ptr;
+        return *this;
+    }
+
+    // Post-increment (it++)
+    myiterator operator++(int) {
+        myiterator temp = *this;
+        ++ptr;
+        return temp;
+    }
+
+    // Pre-decrement (--it)
+    myiterator &operator--() {
+        --ptr;
+        return *this;
+    }
+
+    // Post-decrement (it--)
+    myiterator operator--(int) {
+        myiterator temp = *this;
+        --ptr;
+        return temp;
+    }
+
+    // Dereference
+    T &operator*() const { return *ptr; }
+
+    // Equality
+    bool operator==(const myiterator &other) const { return ptr == other.ptr; }
+
+    // Inequality
+    bool operator!=(const myiterator &other) const {
+        return !(ptr == other.ptr);
+    }
+
+    // Move forward n positions
+    myiterator operator+(int n) const { return myiterator(ptr + n); }
+
+    // Move backward n positions
+    myiterator operator-(int n) const { return myiterator(ptr - n); }
+
+    // Distance between iterators
+    int operator-(const myiterator &other) const { return ptr - other.ptr; }
+
+    T &operator[](int index) const { return *(ptr + index); }
+};
+
 template <typename T> struct myvector {
     T *data;         // Pointer to dynamically allocated array of T
     size_t size;     // Number of elements currently used
     size_t capacity; // Total allocated slots (not necessarily filled)
+    using iterator = myiterator<T>; // Define iterator type
+    using const_iterator =
+        myiterator<const T>; // Define iterator type for const
 
     // Default constructor
     myvector() : data(nullptr), size(0), capacity(0) {}
@@ -117,6 +175,15 @@ template <typename T> struct myvector {
         size = 0;
     }
 
+    // begin(): returns iterator to first element
+    iterator begin() { return iterator(data); }
+
+    // end(): returns iterator to one-past-last element
+    iterator end() { return iterator(data + size); }
+
+    const_iterator begin() const { return const_iterator(data); }
+    const_iterator end() const { return const_iterator(data + size); }
+
     // Destructor to release memory
     ~myvector() {
         for (size_t i = 0; i < size; ++i) {
@@ -126,64 +193,93 @@ template <typename T> struct myvector {
     }
 };
 
-
 int main() {
+    std::cout << "===== BEGIN TEST CASES =====\n";
+    std::cout << std::endl;
+
     myvector<int> v;
 
+    // Test 1: Push elements
     std::cout << "Test 1: Push Elements\n";
     v.mypush(5);
     v.mypush(2);
     v.mypush(8);
     v.mypush(1);
-    std::cout << "Current Vector: ";
-    v.myprint(); // Should be: 5 2 8 1
+    std::cout << "Expected: 5 2 8 1 | Got: ";
+    v.myprint();
     std::cout << "\n";
+    std::cout << std::endl;
 
-    std::cout << "\nTest 2: Sort Ascending\n";
-    v.mysort(); // ascending
-    std::cout << "Sorted Ascending: ";
-    v.myprint(); // Should be: 1 2 5 8
+    // Test 2: Index Access
+    std::cout << "Test 2: Index Access\n";
+    std::cout << "v[0]: " << v[0] << ", v[2]: " << v[2] << "\n";
+    std::cout << std::endl;
+
+    // Test 3: Pop
+    std::cout << "Test 3: Pop Last Element\n";
+    v.mypop(); // removes 1
+    std::cout << "Expected: 5 2 8 | Got: ";
+    v.myprint();
     std::cout << "\n";
+    std::cout << std::endl;
 
-    std::cout << "\nTest 3: Sort Descending\n";
-    v.mysort(true); // descending
-    std::cout << "Sorted Descending: ";
-    v.myprint(); // Should be: 8 5 2 1
-    std::cout << "\n";
-
-    std::cout << "\nTest 4: Pop Last Element\n";
-    v.mypop(); // Should remove 1
-    std::cout << "After pop: ";
-    v.myprint(); // Should be: 8 5 2
-    std::cout << "\n";
-
-    std::cout << "\nTest 5: Clear the Vector\n";
-    v.clear();
-    std::cout << "After clear: ";
-    v.myprint(); // Should print nothing
-    std::cout << "\n";
-
-    std::cout << "\nTest 6: Push After Clear\n";
-    v.mypush(10);
-    v.mypush(20);
-    std::cout << "After pushing 10 and 20: ";
-    v.myprint(); // Should be: 10 20
-    std::cout << "\n";
-
-    std::cout << "\nTest 7: Clear Again and Push More\n";
-    v.clear();
-    v.mypush(7);
-    v.mypush(3);
-    v.mypush(9);
-    std::cout << "After clear and push 7 3 9: ";
-    v.myprint(); // Should be: 7 3 9
-    std::cout << "\n";
-
-    std::cout << "\nTest 8: Final Sort Ascending\n";
+    // Test 4: Sort Ascending
+    std::cout << "Test 4: Sort Ascending\n";
     v.mysort();
-    std::cout << "Final Sorted Ascending: ";
-    v.myprint(); // Should be: 3 7 9
+    std::cout << "Expected: 2 5 8 | Got: ";
+    v.myprint();
     std::cout << "\n";
+    std::cout << std::endl;
+
+    // Test 5: Sort Descending
+    std::cout << "Test 5: Sort Descending\n";
+    v.mysort(true);
+    std::cout << "Expected: 8 5 2 | Got: ";
+    v.myprint();
+    std::cout << "\n";
+    std::cout << std::endl;
+
+    // Test 6: Clear
+    std::cout << "Test 6: Clear\n";
+    v.clear();
+    std::cout << "Expected: <empty> | Got: ";
+    v.myprint();
+    std::cout << "\n";
+    std::cout << std::endl;
+
+    // Test 7: Reuse After Clear
+    std::cout << "Test 7: Reuse After Clear\n";
+    v.mypush(9);
+    v.mypush(1);
+    v.mypush(6);
+    std::cout << "Expected: 9 1 6 | Got: ";
+    v.myprint();
+    std::cout << "\n";
+    std::cout << std::endl;
+
+    // Test 8: Iterator Forward Traversal
+    std::cout << "Test 8: Iterator Forward\n";
+    for (myvector<int>::iterator it = v.begin(); it != v.end(); ++it) {
+        std::cout << *it << " ";
+    }
+    std::cout << " | Expected: 9 1 6\n";
+    std::cout << std::endl;
+
+    // Test 9: Range-Based For Loop
+    std::cout << "Test 9: Range-Based For\n";
+    for (int x : v) {
+        std::cout << x << " ";
+    }
+    std::cout << " | Expected: 9 1 6\n";
+    std::cout << std::endl;
+
+    // Test 10: Iterator Arithmetic
+    std::cout << "Test 10: Iterator Arithmetic\n";
+    auto it = v.begin();
+    std::cout << "*(it+2): " << *(it + 2) << " | Expected: 6\n";
+    std::cout << std::endl;
+
+    std::cout << "===== END TEST CASES =====\n";
 
     return 0;
 }
