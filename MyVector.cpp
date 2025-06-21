@@ -194,92 +194,92 @@ template <typename T> struct myvector {
 };
 
 int main() {
-    std::cout << "===== BEGIN TEST CASES =====\n";
-    std::cout << std::endl;
+    std::cout << "===== BEGIN TEST CASES =====\n\n";
 
     myvector<int> v;
 
-    // Test 1: Push elements
+    // Test 1: Push Elements
     std::cout << "Test 1: Push Elements\n";
     v.mypush(5);
     v.mypush(2);
     v.mypush(8);
     v.mypush(1);
-    std::cout << "Expected: 5 2 8 1 | Got: ";
+    std::cout << "Expected: 5 2 8 1\nGot:      ";
     v.myprint();
-    std::cout << "\n";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 
     // Test 2: Index Access
     std::cout << "Test 2: Index Access\n";
-    std::cout << "v[0]: " << v[0] << ", v[2]: " << v[2] << "\n";
-    std::cout << std::endl;
+    std::cout << "Expected: v[0] = 5, v[2] = 8\nGot:      v[0] = " << v[0] << ", v[2] = " << v[2] << "\n\n";
 
-    // Test 3: Pop
+    // Test 3: Pop Last Element
     std::cout << "Test 3: Pop Last Element\n";
     v.mypop(); // removes 1
-    std::cout << "Expected: 5 2 8 | Got: ";
+    std::cout << "Expected: 5 2 8\nGot:      ";
     v.myprint();
-    std::cout << "\n";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 
     // Test 4: Sort Ascending
     std::cout << "Test 4: Sort Ascending\n";
     v.mysort();
-    std::cout << "Expected: 2 5 8 | Got: ";
+    std::cout << "Expected: 2 5 8\nGot:      ";
     v.myprint();
-    std::cout << "\n";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 
     // Test 5: Sort Descending
     std::cout << "Test 5: Sort Descending\n";
     v.mysort(true);
-    std::cout << "Expected: 8 5 2 | Got: ";
+    std::cout << "Expected: 8 5 2\nGot:      ";
     v.myprint();
-    std::cout << "\n";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 
     // Test 6: Clear
     std::cout << "Test 6: Clear\n";
     v.clear();
-    std::cout << "Expected: <empty> | Got: ";
+    std::cout << "Expected: <empty>\nGot:      ";
     v.myprint();
-    std::cout << "\n";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 
     // Test 7: Reuse After Clear
     std::cout << "Test 7: Reuse After Clear\n";
     v.mypush(9);
     v.mypush(1);
     v.mypush(6);
-    std::cout << "Expected: 9 1 6 | Got: ";
+    std::cout << "Expected: 9 1 6\nGot:      ";
     v.myprint();
-    std::cout << "\n";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 
     // Test 8: Iterator Forward Traversal
-    std::cout << "Test 8: Iterator Forward\n";
+    std::cout << "Test 8: Iterator Forward Traversal\n";
+    std::cout << "Expected: 9 1 6\nGot:      ";
     for (myvector<int>::iterator it = v.begin(); it != v.end(); ++it) {
         std::cout << *it << " ";
     }
-    std::cout << " | Expected: 9 1 6\n";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 
     // Test 9: Range-Based For Loop
-    std::cout << "Test 9: Range-Based For\n";
+    std::cout << "Test 9: Range-Based For Loop\n";
+    std::cout << "Expected: 9 1 6\nGot:      ";
     for (int x : v) {
         std::cout << x << " ";
     }
-    std::cout << " | Expected: 9 1 6\n";
-    std::cout << std::endl;
+    std::cout << "\n\n";
 
     // Test 10: Iterator Arithmetic
     std::cout << "Test 10: Iterator Arithmetic\n";
     auto it = v.begin();
-    std::cout << "*(it+2): " << *(it + 2) << " | Expected: 6\n";
-    std::cout << std::endl;
+    std::cout << "Expected: *(it+2) = 6\nGot:      *(it+2) = " << *(it + 2) << "\n\n";
+
+    // Test 11: Full Iterator Loop
+    std::cout << "Test 11: Full Iterator Loop\n";
+    std::cout << "Expected: 9 1 6\nGot:      ";
+    for (myvector<int>::iterator it = v.begin(); it != v.end(); ++it) {
+        std::cout << *it << " ";
+    }
+    std::cout << "\n\n";
 
     std::cout << "===== END TEST CASES =====\n";
 
     return 0;
 }
+
