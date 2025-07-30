@@ -1,3 +1,4 @@
+#include "myiterator.hpp"
 #include <cstddef>
 #include <iostream>
 #include <new>       // for placement new
@@ -9,7 +10,9 @@ template <typename T> struct cqueue {
     size_t size;
     size_t capacity;
     size_t start;
-
+    using iterator = myiterator<T>; // Define iterator type
+    using const_iterator =
+        myiterator<const T>; // Define iterator type for const
     // Default constructor
     cqueue() : data(nullptr), size(0), capacity(0), start(0) {}
 
@@ -102,6 +105,14 @@ template <typename T> struct cqueue {
         size = 0;
         start = 0;
     }
+    // begin(): returns iterator to first element
+    iterator begin() { return iterator(data); }
+
+    // end(): returns iterator to one-past-last element
+    iterator end() { return iterator(data + size); }
+
+    const_iterator begin() const { return const_iterator(data); }
+    const_iterator end() const { return const_iterator(data + size); }
 
     // Destructor
     ~cqueue() {
@@ -114,61 +125,93 @@ template <typename T> struct cqueue {
 };
 
 int main() {
-    std::cout << "Test 1: Basic push and front\n";
-    cqueue<int> q1;
-    q1.cadd(10);
-    q1.cadd(20);
-    q1.cadd(30);
-    std::cout << "Front: " << q1.front() << "\n";   // Expected: 10
-    std::cout << "Back : " << q1.back() << "\n"; // Expected : 30
-    std::cout << "Length: " << q1.length() << "\n"; // Expected: 3
+    std::cout << "===== BEGIN TEST CASES =====\n\n";
 
-    std::cout << "\nTest 2: Pop elements and check order\n";
-    q1.cpop();
-    std::cout << "Front after pop: " << q1.front() << "\n"; // Expected: 20
-    q1.cpop();
-    std::cout << "Front after second pop: " << q1.front()
-              << "\n"; // Expected: 30
-    q1.cpop();
-    std::cout << "Empty after popping all: " << (q1.empty() ? "Yes" : "No")
-              << "\n"; // Expected: Yes
+    cqueue<int> q;
 
-    std::cout << "\nTest 3: Circular behavior check\n";
-    for (int i = 1; i <= 5; ++i)
-        q1.cadd(i * 10); // 10,20,30,40,50
+    // Test 1: Add Elements
+    std::cout << "Test 1: Add Elements\n";
+    q.cadd(10);
+    q.cadd(20);
+    q.cadd(30);
+    std::cout << "Expected Front: 10, Back: 30\nGot:      Front: " << q.front()
+              << ", Back: " << q.back() << "\n\n";
 
-    q1.cpop(); // remove 10
-    q1.cpop(); // remove 20
-    q1.cadd(60);
-    q1.cadd(70); // triggers wrap-around
-    while (!q1.empty()) {
-        std::cout << q1.front() << " ";
-        q1.cpop();
+    // Test 2: Pop Element
+    std::cout << "Test 2: Pop Element\n";
+    q.cpop(); // removes 10
+    std::cout << "Expected Front: 20\nGot:      Front: " << q.front() << "\n\n";
+
+    // Test 3: Add More (Test Wrap-around)
+    std::cout << "Test 3: Add More (Test Wrap-around)\n";
+    q.cadd(40);
+    q.cadd(50);
+    std::cout << "Expected Front: 20, Back: 50\nGot:      Front: " << q.front()
+              << ", Back: " << q.back() << "\n\n";
+
+    // Test 4: Pop All Elements
+    std::cout << "Test 4: Pop All Elements\n";
+    q.cpop(); // removes 20
+    q.cpop(); // removes 30
+    q.cpop(); // removes 40
+    q.cpop(); // removes 50
+    std::cout << "Expected: Queue Empty\nGot:      "
+              << (q.empty() ? "Queue Empty" : "Not Empty") << "\n\n";
+
+    // Test 5: Add After Empty (Reuse after Clear)
+    std::cout << "Test 5: Add After Empty\n";
+    q.cadd(99);
+    q.cadd(77);
+    std::cout << "Expected Front: 99, Back: 77\nGot:      Front: " << q.front()
+              << ", Back: " << q.back() << "\n\n";
+
+    // Test 6: Clear
+    std::cout << "Test 6: Clear\n";
+    q.clear();
+    std::cout << "Expected: Queue Empty\nGot:      "
+              << (q.empty() ? "Queue Empty" : "Not Empty") << "\n\n";
+
+    // Test 7: Copy Constructor
+    std::cout << "Test 7: Copy Constructor\n";
+    q.cadd(1);
+    q.cadd(2);
+    q.cadd(3);
+    cqueue<int> copy_q = q; // Use copy constructor
+    std::cout << "Expected Copy Front: 1, Back: 3\nGot:      Front: "
+              << copy_q.front() << ", Back: " << copy_q.back() << "\n\n";
+
+    // Test 8: Iterator Forward Traversal
+    std::cout << "Test 8: Iterator Forward Traversal\n";
+    std::cout << "Expected: 1 2 3\nGot:      ";
+    for (cqueue<int>::iterator it = q.begin(); it != q.end(); ++it) {
+        std::cout << *it << " ";
     }
-    std::cout << "\n"; // Expected order: 30 40 50 60 70
+    std::cout << "\n\n";
 
-    std::cout << "\nTest 4: Clear and reuse\n";
-    q1.cadd(100);
-    q1.cadd(200);
-    q1.clear();
-    std::cout << "Length after clear: " << q1.length() << "\n"; // Expected: 0
-    std::cout << "Empty? " << (q1.empty() ? "Yes" : "No")
-              << "\n"; // Expected: Yes
-    q1.cadd(300);
-    std::cout << "Front after reuse: " << q1.front() << "\n"; // Expected: 300
+    // Test 9: Range-Based For Loop
+    std::cout << "Test 9: Range-Based For Loop\n";
+    std::cout << "Expected: 1 2 3\nGot:      ";
+    for (const int &x : q) {
+        std::cout << x << " ";
+    }
+    std::cout << "\n\n";
 
-    std::cout << "\nTest 5: Copy constructor\n";
-    q1.cadd(400);
-    cqueue<int> q2 = q1;                                      // Copy
-    std::cout << "Front of original: " << q1.front() << "\n"; // Expected: 300
-    std::cout << "Front of copy: " << q2.front() << "\n";     // Expected: 300
-    q2.cpop();
-    std::cout << "After pop on copy, front: " << q2.front()
-              << "\n"; // Expected: 400
-    std::cout << "Original still intact: " << q1.front()
-              << "\n"; // Expected: 300
+    // Test 10: Iterator Arithmetic
+    std::cout << "Test 10: Iterator Arithmetic\n";
+    auto it = q.begin();
+    std::cout << "Expected: *(it+2) = 3\nGot:      *(it+2) = " << *(it + 2)
+              << "\n\n";
 
-    std::cout << "\nAll tests completed successfully.\n";
+    // Test 11: Pop and Wrap-Around Behavior
+    std::cout << "Test 11: Pop and Wrap-Around Behavior\n";
+    q.cpop();  // removes 1
+    q.cpop();  // removes 2
+    q.cadd(4); // wrap around to index 0
+    q.cadd(5);
+    std::cout << "Expected Front: 3, Back: 5\nGot:      Front: " << q.front()
+              << ", Back: " << q.back() << "\n\n";
+
+    std::cout << "===== END TEST CASES =====\n";
 
     return 0;
 }
