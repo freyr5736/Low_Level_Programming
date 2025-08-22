@@ -11,7 +11,7 @@ using namespace std;
 // }
 
 // int main (){
-//     std::thread t1(func,11);
+//     thread t1(func,11);
 //     t1.join();
 //     return 0;
 // }
@@ -23,10 +23,10 @@ using namespace std;
 //     // auto func = [&] (int x){
 //     //     while(x--) cout<<x<<endl;
 //     // };
-//     // std::thread t1(func,11);
+//     // thread t1(func,11);
 
 //     // Method 2
-//     std::thread t1([&](int x){while(x--) cout<<x<<endl;}, 11);
+//     thread t1([&](int x){while(x--) cout<<x<<endl;}, 11);
 //     t1.join();
 
 //     return 0;
@@ -42,7 +42,7 @@ using namespace std;
 // };
 
 // int main(){
-//     std::thread t1(Base(),11); // passing functor
+//     thread t1(Base(),11); // passing functor
 //     t1.join();
 //     return 0;
 // }
@@ -58,7 +58,7 @@ using namespace std;
 
 // int main(){
 //     Base b;
-//     std::thread t1(&Base::run, &b, 11);
+//     thread t1(&Base::run, &b, 11);
 //     t1.join();
 //     return 0;
 // }
@@ -74,7 +74,7 @@ class Base{
 
 int main(){
     Base b;
-    std::thread t1(&Base::run, 11);
+    thread t1(&Base::run, 11);
     t1.join();
     return 0;
 }
