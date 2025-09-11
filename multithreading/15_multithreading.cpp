@@ -3,12 +3,14 @@
 #include <mutex>
 #include <condition_variable>
 #include <deque>
+#include <atomic>
 
 using namespace std;
 
 mutex m;
 condition_variable cv;
 deque<int> buffer;
+atomic<bool> done{false};
 const unsigned int max_buffer_size = 50;
 
 void producer(int val){
@@ -19,8 +21,9 @@ void producer(int val){
         cout<<val<<" produced"<<endl;
         val--;
         locker.unlock();
-        cv.notify_one();
+        cv.notify_all();
     }
+    done = true;
 }
 
 void consumer(){
@@ -31,16 +34,22 @@ void consumer(){
         buffer.pop_back();
         cout<<val<<" consumed"<<endl;
         locker.unlock();
-        cv.notify_one();
+        cv.notify_all();
+        if(done){
+            break;
+        }
     }
+    std::cout<<"The End."<<endl;
 }
 
 int main(){
-    thread t1,t2;
+    thread t1,t2,t3;
     t1 = thread(producer,100);
     t2 = thread(consumer);
+    t3 = thread(consumer);
     t1.join();
-    t2.join();
+    t2.join(); 
+    t3.join();
 
     return 0;
 }
